@@ -1,0 +1,20 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Page Object test example">
+    <parameter name="browserType" value="chrome" />
+    <parameter name="appURL"
+               value="https://www.demoblaze.com/index.html" />
+
+    <test name="Login test">
+        <classes>
+            <class name="TestCases.HomePageTest">
+                <methods>
+                    <include name="logInWrongPassword" />
+                    <include name="logInUserNotExist" />
+                    <include name ="logInMissingField" />
+                    <include name="logInSuccess" />
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>
+
