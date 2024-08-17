@@ -1,20 +1,44 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="Page Object test example">
-    <parameter name="browserType" value="chrome" />
-    <parameter name="appURL"
-               value="https://www.demoblaze.com/index.html" />
+<suite name="HomePage test" parallel="tests" thread-count="1">
+    <parameter name="appURL" value="https://www.demoblaze.com/"/>
+<!--    <test name="LoginTestOnChrome">-->
+<!--        <parameter name="browserType" value="chrome"/>-->
+<!--        <classes>-->
+<!--            <class name="TestCases.LoginTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
 
-    <test name="Login test">
+<!--    <test name="SignupTestOnFirefox">-->
+<!--        <parameter name="browserType" value="firefox"/>-->
+<!--        <classes>-->
+<!--            <class name="TestCases.SignupTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
+
+<!--    <test name="ContactTest">-->
+<!--        <parameter name="browserType" value="firefox"></parameter>-->
+
+<!--        <classes>-->
+<!--            <class name="TestCases.ContactTest"></class>-->
+<!--        </classes>-->
+<!--    </test>-->
+
+<!--    <test name="AboutUsTest">-->
+<!--        <parameter name="browserType" value="firefox"></parameter>-->
+<!--        <classes>-->
+<!--            <class name="TestCases.AboutUsTest"></class>-->
+<!--        </classes>-->
+<!--    </test>-->
+<!--    <test name="HomeTest">-->
+<!--        <parameter name="browserType" value="firefox"></parameter>-->
+<!--        <classes>-->
+<!--            <class name="TestCases.HomeTest"></class>-->
+<!--        </classes>-->
+<!--    </test>-->
+    <test name="ProductDetailTest">
+        <parameter name="browserType" value="firefox"></parameter>
         <classes>
-            <class name="TestCases.HomePageTest">
-                <methods>
-                    <include name="logInWrongPassword" />
-                    <include name="logInUserNotExist" />
-                    <include name ="logInMissingField" />
-                    <include name="logInSuccess" />
-                </methods>
-            </class>
+            <class name="TestCases.ProductDetailTest"></class>
         </classes>
     </test>
 </suite>
-

@@ -1,191 +1,122 @@
 package Pages;
 
-import org.openqa.selenium.*;
+import Base.Action;
+import Locators.HomeLocators;
+import Ultilities.Log;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
+import static java.lang.Thread.sleep;
 
 public class HomePage {
     public WebDriver driver;
-    private WebDriverWait webDriverWait;
-    private By home_Button = By.xpath("//a[normalize-space()='Contact']");
-    private By aboutUs_Button = By.xpath("//a[normalize-space()='About us']");
-    private By cart_Button = By.id("cartur");
-    /**
-     * Log In Section Here!
-     */
-    private By logIn_Button = By.id("login2");
-    private By logInUsername_Field = By.id("loginusername");
-    private By logInPassword_Field = By.xpath("//input[@id='loginpassword']");
-    private By logIn_Confirm = By.xpath("//button[normalize-space()='Log in']");
-    private By ligInClose_Button = By.xpath("//div[@id='logInModal']//button[@type='button'][normalize-space()='Close']");
-    private By logIn_WellComeMessage = By.xpath("//a[@id='nameofuser']");
-
-
-    /**
-     * Sign Up Section Here
-     */
-
-    private By signUp_Button = By.id("signin2");
-    private By signUpUsername_Field = By.id("sign-username");
-    private By signUpPassword_Field = By.id("sign-password");
-    private By signUp_Confirm = By.xpath("//button[normalize-space()='Sign up']");
-
-    /**
-     * Categories Section Here
-     */
-    private By phones_Categories = By.xpath("//a[@onClick='byCat('phone')']");
-    private By laptop_Categories = By.xpath("//a[@onClick='byCat('notebook')']");
-    private By monitors_Categories = By.xpath("//a[@onClick='byCat('monitor')']");
-    private By logInTitle_Modal = By.xpath("//h5[@id='logInModalLabel']");
-    private By signUpTitle_Modal = By.id("signInModalLabel");
-
+    private final WebDriverWait wait;
+    private final Action action;
+    private final HomeLocators homeLocators;
 
     public HomePage(WebDriver driver) {
         this.driver = driver;
-        this.webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-    }
-
-    public String getHomePageTitle() {
-        return driver.getTitle();
-    }
-
-
-    public String getLogInTitle() {
-        return driver.findElement(logInTitle_Modal).getText();
-    }
-
-    public String getSignUpTitle() {
-        return driver.findElement(signUpTitle_Modal).getText();
-    }
-
-    public void waitForLogInModal() {
-        webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(logInTitle_Modal));
-    }
-
-    public void waitForSignUpModal() {
-        webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(signUpTitle_Modal));
-    }
-
-    public boolean verifyLogInTitleModal() {
-        String expectedSignInTitle = "Log in";
-        return getLogInTitle().equals(expectedSignInTitle);
-    }
-
-    public boolean verifySignUpTitleModal() {
-        String expectedSignUpTitle = "Sign up";
-        return getSignUpTitle().equals(expectedSignUpTitle);
-    }
-
-    public void clicklogInButton() {
-        driver.findElement(logIn_Button).click();
-
-    }
-
-    public void clickSignUpButton() {
-        driver.findElement(signUp_Button).click();
-    }
-
-    public void clickCloseButton() {
-        driver.findElement(ligInClose_Button).click();
+        action = new Action(driver);
+        this.homeLocators = new HomeLocators();
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
     }
 
 
-    public void logInConfirmation() {
-        driver.findElement(logIn_Confirm).click();
+    public void click_category(String category){
+        Log.info("Click category: " + category);
+        By categoryLocator = getCategoryLocator(category);
+        action.click(categoryLocator);
     }
 
-    public void signUpConfirmation() {
-        driver.findElement(signUp_Confirm).click();
+    public void wait_for_product(){
+        Log.info("Wait for product");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(homeLocators.categories_productToCompare));
+        action.setWait();
     }
 
-
-    public void signUp(String username, String password) throws InterruptedException {
-        clickSignUpButton();
-        waitForSignUpModal();
-        verifySignUpTitleModal();
-        driver.findElement(signUpUsername_Field).sendKeys(username);
-        Thread.sleep(2000);
-        driver.findElement(signUpPassword_Field).sendKeys(password);
-        Thread.sleep(2000);
-        signUpConfirmation();
+    public void compare_product(String expected_product){
+        Log.info("Compare the product");
+        WebElement product_to_be_compare = driver.findElement(homeLocators.categories_productToCompare);
+        String actual_product = product_to_be_compare.getText();
+        Log.info("Actual Product: " + actual_product);
+        Assert.assertEquals(actual_product, expected_product,"The first product does not match the expected value." );
+        Log.info("Actual product matches the expected product. Filter completed");
     }
 
-    public void failed_logIn(String username, String password, String expectedAlert) throws InterruptedException {
-        clicklogInButton();
-        waitForLogInModal();
-        verifyLogInTitleModal();
-        enterText(logInUsername_Field, username);
-        webDriverWait.until(ExpectedConditions.elementToBeClickable(logInPassword_Field));
-        enterText(logInPassword_Field, password);
-        logInConfirmation();
-        webDriverWait.until(ExpectedConditions.alertIsPresent());
-        validateAlertMessage(expectedAlert);
-        clickCloseButton();
+    public By getCategoryLocator(String category) {
+        return switch (category.toLowerCase()) {
+            case "phones" -> homeLocators.phones_Categories;
+            case "laptops" -> homeLocators.laptop_Categories;
+            case "monitors" -> homeLocators.monitors_Categories;
+            default -> throw new IllegalArgumentException("Invalid category: " + category);
+        };    }
+
+    public void click_home(){
+        Log.info("Click home");
+        action.click(homeLocators.home_button);
     }
 
-
-    public void login(String username, String password) {
-        clicklogInButton();
-        waitForLogInModal();
-        verifyLogInTitleModal();
-        enterText(logInUsername_Field, username);
-        enterText(logInPassword_Field, password);
-        logInConfirmation();
-        webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(logIn_WellComeMessage));
-        validateLogIn(username);
+    public String get_first_product_of_each(){
+        WebElement product = driver.findElement(homeLocators.cate_firstProduct);
+        return product.getText();
     }
 
-
-    public void enterText(By fieldLocator, String text) {
-        WebElement field = driver.findElement(fieldLocator);
-        field.clear();
-        field.sendKeys(text);
+    public void click_next() {
+        Log.info("Click next");
+        action.click(homeLocators.next_button);
     }
 
-
-    public void validateLogIn(String username) {
-        String expectedWelcome_Message = "Welcome " + username;
-        String actualWelcome_Message = driver.findElement(logIn_WellComeMessage).getText();
-        Assert.assertEquals(expectedWelcome_Message, actualWelcome_Message, "Failed to log in");
+    public void check_if_pagination(){
+        Log.info("Checking if pagination works");
+        String product_before_click = get_first_product_of_each();
+        Log.info("Product before click: " + product_before_click);
+        click_next();
+        String product_after_click = get_first_product_of_each();
+        Log.info("Product after click: " + product_after_click);
+        Assert.assertNotEquals(product_before_click, product_after_click, "Failed to pagination");
+        Log.info("Pagination works normal!");
+        action.setWait();
     }
 
 
-    public List<String> getAllAlertMessages() {
-        List<String> alertMessages = new ArrayList<>();
-        boolean alertPresent = true;
-
-        while (alertPresent) {
-            try {
-                Alert alert = driver.switchTo().alert();
-                String alertMessage = alert.getText();
-                alertMessages.add(alertMessage);
-                alert.accept();
-            } catch (NoAlertPresentException e) {
-                alertPresent = false;
-            }
+    public String getProduct() throws InterruptedException {
+        Actions a = new Actions(driver);
+        List<WebElement> products = driver.findElements(homeLocators.product_list);
+        if (products.isEmpty()) {
+            Log.info("No product found.");
+            return null;
         }
-
-        return alertMessages;
+        Random random = new Random();
+        int randomIndex = random.nextInt(products.size());
+        Log.info("Random Index: " + randomIndex);
+        sleep(1000);
+        String productXPath = "(//div[@class='card h-100'])[" + (randomIndex + 1) + "]";
+        WebElement productLocation = driver.findElement(By.xpath(productXPath));
+        wait.until(ExpectedConditions.elementToBeClickable(productLocation));
+        action.scrollToElement(productLocation);
+        Log.info("Getting product information" );
+        sleep(1000);
+        String productInfoBeforeClick = productLocation.getText();
+        Log.info("Product info: " + productInfoBeforeClick);
+        sleep(1000);
+        String[] productInfoLine = productInfoBeforeClick.split("\n");
+        String name = productInfoLine[0];
+        By productName_xPath = By.xpath("//a[normalize-space()='" + name + "']");
+        WebElement productName = driver.findElement(productName_xPath);
+        a.moveToElement(productName).click().build().perform();
+        return productInfoBeforeClick;
     }
-    public void validateAlertMessage(String expectedAlert) {
-        List<String> actualAlertMessages = getAllAlertMessages();
-        boolean alertMatched = actualAlertMessages.contains(expectedAlert);
-        if (!alertMatched) {
-            String actualAlerts = String.join(", ", actualAlertMessages);
-            Assert.fail("Expected alert message: \"" + expectedAlert + "\", but got: [" + actualAlerts + "]");
-        } else {
-            Assert.assertTrue(true);
-
-        }
+    public void end_case() {
+        Log.info("===================================================================");
     }
+
 }
-
-
-
-
-
